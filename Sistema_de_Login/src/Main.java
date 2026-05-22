@@ -11,7 +11,8 @@ public class Main{
         while(true){
             System.out.println("1. Cadastrar");
             System.out.println("2. Fazer login");
-            System.out.println("3. Deletar conta");
+            System.out.println("3. Ver perfil");   // NOVO
+            System.out.println("4. Deletar conta");
             System.out.println("0. Sair");
 
             int opcao= sc.nextInt();
@@ -22,21 +23,34 @@ public class Main{
                 break;
             }
 
-            System.out.println("Nome de usuario");
-            String nome = sc.nextLine().trim();
-
-            System.out.println("Senha: ");
-            String senha = sc.nextLine().trim();
-
-            if (opcao==1){
-                authService.cadastrar(nome, senha);
-            } else if(opcao==2){
+            if(opcao==1){
+                System.out.println("Nome de usuario: ");
+                String nome = sc.nextLine().trim();
+                System.out.println("Email: ");           // NOVO
+                String email = sc.nextLine().trim();     // NOVO
+                System.out.println("Senha: ");
+                String senha = sc.nextLine().trim();
+                authService.cadastrar(nome, senha, email);
+            }else if (opcao == 2) {
+                System.out.println("Nome de usuario: ");
+                String nome = sc.nextLine().trim();
+                System.out.println("Senha: ");
+                String senha = sc.nextLine().trim();
                 authService.login(nome, senha);
-            } else if (opcao == 3) {
+
+            } else if (opcao == 3) {                    // NOVO
+                System.out.println("Nome de usuario: ");
+                String nome = sc.nextLine().trim();
+                Usuario u = repositorio.buscar(nome);
+                if (u != null) u.exibirPerfil();
+                else System.out.println("Usuario nao encontrado.");
+
+            } else if (opcao == 4) {
+                System.out.println("Nome de usuario: ");
+                String nome = sc.nextLine().trim();
+                System.out.println("Senha: ");
+                String senha = sc.nextLine().trim();
                 authService.deletarConta(nome, senha);
-            }
-            else{
-                System.out.println("Opcao invalida");
             }
         }
         sc.close();

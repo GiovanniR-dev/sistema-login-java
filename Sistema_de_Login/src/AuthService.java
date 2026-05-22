@@ -14,7 +14,7 @@ public class AuthService {
         this.repositorio = repositorio;
     }
 
-    public boolean cadastrar(String nome,String senha){
+    public boolean cadastrar(String nome,String senha, String email){
         if (repositorio.existe(nome)){
             System.out.println("Usuario:"+nome+" Ja existe");
             return false;
@@ -28,7 +28,7 @@ public class AuthService {
         String hash=hashSenha(senha);
         if (hash==null)return false;
 
-        repositorio.salvar(new Usuario(nome,hash));
+        repositorio.salvar(new Usuario(nome,hash,email));
         System.out.println("Usuário '" + nome + "' cadastrado com sucesso!");
         return true;
 
