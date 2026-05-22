@@ -17,4 +17,8 @@ public class UserRepository {
         return banco.containsKey(nome);
     }
 
+    public void deletar(String nome){
+        banco.remove(nome);
+    }
+
 }

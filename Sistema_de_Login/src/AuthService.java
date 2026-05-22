@@ -1,9 +1,14 @@
+import java.util.HashMap;
+import java.util.Map;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-
 public class AuthService {
     private UserRepository repositorio;
+
+    private Map<String, Integer> tentativas=new HashMap<>();
+    private static final int MAX_TENTAJAS=3;
+
 
     public AuthService(UserRepository repositorio){
         this.repositorio = repositorio;
@@ -14,6 +19,12 @@ public class AuthService {
             System.out.println("Usuario:"+nome+" Ja existe");
             return false;
         }
+
+        if(!senhaValida(senha)){
+            System.out.println("Senha Fraca");
+            return false;
+        }
+
         String hash=hashSenha(senha);
         if (hash==null)return false;
 
@@ -23,6 +34,20 @@ public class AuthService {
 
     }
 
+    public boolean senhaValida(String senha){
+        if(senha.length()<6)return false;
+        boolean temLetra=false;
+        boolean temnumero=false;
+
+        for(char c: senha.toCharArray()){
+            if(Character.isLetter(c))temnumero=true;
+            if(Character.isDigit(c))temLetra=true;
+        }
+        return temnumero && temLetra;
+    }
+
+
+
     public boolean login (String nome, String senha){
         Usuario usuario=repositorio.buscar(nome);
 
@@ -31,15 +56,40 @@ public class AuthService {
             return false;
         }
 
+        int erros=tentativas.getOrDefault(nome,0);
+        if (erros>MAX_TENTAJAS){
+            System.out.println("Tentativa excedida");
+            return false;
+        }
+
         String hashDigitado=hashSenha(senha);
-        if(usuario.getSenhaHash().equals(hashDigitado)){
-            System.out.println("Login realizado com sucesso! Bemv vindo  "+nome+"!");
+        if (usuario.getSenhaHash().equals(hashDigitado)) {
+            tentativas.remove(nome); // NOVO: reseta os erros ao logar com sucesso
+            System.out.println("Login realizado! Bem-vindo, " + nome + "!");
             return true;
         } else {
-            System.out.println("Senha incorreta.");
+            tentativas.put(nome, erros + 1); // NOVO: incrementa o contador de erros
+            int restantes = MAX_TENTAJAS - (erros + 1);
+            if (restantes > 0) {
+                System.out.println("Senha incorreta. Tentativas restantes: " + restantes);
+            } else {
+                System.out.println("Conta bloqueada! Numero de tentativas excedido.");
+            }
             return false;
         }
     }
+
+    public boolean deletarConta(String nome, String senha){
+        if(!login(nome,senha)){
+            System.out.println("Nao e possivel concluir seu login");
+            return false;
+        }
+        repositorio.deletar(nome);
+        System.out.println("Conta de: "+nome+" Deletada com sucesso!");
+        return true;
+    }
+
+
 
     private String hashSenha(String senha){
         try {

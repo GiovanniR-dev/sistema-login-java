@@ -9,10 +9,10 @@ public class Main{
         System.out.println("====SISTEMA DE LOGIN=====");
 
         while(true){
-            System.out.println("\n1. Cadastrar");
+            System.out.println("1. Cadastrar");
             System.out.println("2. Fazer login");
+            System.out.println("3. Deletar conta");
             System.out.println("0. Sair");
-            System.out.print("Escolha: ");
 
             int opcao= sc.nextInt();
             sc.nextLine();
@@ -32,7 +32,10 @@ public class Main{
                 authService.cadastrar(nome, senha);
             } else if(opcao==2){
                 authService.login(nome, senha);
-            } else{
+            } else if (opcao == 3) {
+                authService.deletarConta(nome, senha);
+            }
+            else{
                 System.out.println("Opcao invalida");
             }
         }
