@@ -7,7 +7,7 @@ public class DatabaseConnection {
 
 
     private static final String URL =
-            "jdbc:mysql://sistema_login?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo";
+            "SEU_URL";
 
 
     private static final String USER =
