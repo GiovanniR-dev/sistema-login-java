@@ -1,33 +1,65 @@
-import java.util.HashMap;
-import java.util.Map;
+
+import java.sql.*;
 
 
 public class UserRepository {
-    private Map<String,Usuario> banco = new HashMap<>();
-    private ArquivoRepository arquivoRepository;
+    public void salvar(Usuario usuario){
+        String sql = "INSERT INTO usuarios (nome, senha_hash, email) VALUES (?, ?, ?)";
 
-    public UserRepository(){
-        this.arquivoRepository = new ArquivoRepository();
-        this.banco= arquivoRepository.carregar();
-        System.out.println("Usuarios carregados: "+banco.size());
-    }
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)){
 
-    public void salvar(Usuario usuario) {
-        banco.put(usuario.getNome(), usuario);
-        arquivoRepository.salvar(banco);
+            ps.setString(1,usuario.getNome());
+            ps.setString(2,usuario.getSenhaHash());
+            ps.setString(3,usuario.getEmail());
+
+            ps.executeUpdate();
+            System.out.println("Salvo com sucesso!");
+
+        }catch (SQLException e){
+            System.out.println("erro ao salvar"+e.getMessage());
+        }
     }
 
     public Usuario buscar(String nome){
-        return banco.get(nome);
+        String sql="SELECT nome, senha_hash, email, data_cadastro FROM usuarios WHERE nome = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1,nome);
+
+            ResultSet rs=ps.executeQuery();
+
+            if (rs.next()){
+                return new Usuario(
+                        rs.getString("nome"),
+                        rs.getString("senha_hash"),
+                        rs.getString("email"),
+                        rs.getString("data_cadastro")
+                );
+            }
+        } catch (SQLException e){
+            System.out.println("erro ao buscar"+e.getMessage());
+        }
+        return null;
     }
 
     public boolean existe(String nome){
-        return banco.containsKey(nome);
+        return buscar(nome) != null;
     }
 
     public void deletar(String nome){
-        banco.remove(nome);
-        arquivoRepository.salvar(banco);
-    }
+        String sql = "DELETE FROM usuarios WHERE nome = ?";
 
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nome);
+            ps.executeUpdate();
+            System.out.println("Usuario deletado do banco.");
+
+        } catch (SQLException e){
+            System.out.println("erro ao deletar"+e.getMessage());
+        }
+    }
 }
